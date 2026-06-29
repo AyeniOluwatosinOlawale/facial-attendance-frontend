@@ -17,9 +17,10 @@ export async function clockFace(imageBase64: string) {
 }
 
 export interface ClockResponse {
-  status: 'no_face' | 'unknown' | 'matched'
+  status: 'no_face' | 'unknown' | 'matched' | 'error'
   action?: 'signed_in' | 'signed_out' | 'already_complete'
   name?: string
   time?: string
   hours_worked?: number
+  message?: string
 }

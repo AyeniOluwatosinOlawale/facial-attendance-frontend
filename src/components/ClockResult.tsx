@@ -8,6 +8,15 @@ function formatHours(h: number) {
 }
 
 export default function ClockResult({ result }: { result: ClockResponse }) {
+  if (result.status === 'error') {
+    return (
+      <div className="rounded-2xl bg-yellow-50 border border-yellow-200 px-8 py-6 text-center">
+        <p className="text-2xl font-semibold text-yellow-700">Connection error</p>
+        <p className="text-yellow-600 mt-1 text-sm">{result.message ?? 'Could not reach the recognition server. Retrying…'}</p>
+      </div>
+    )
+  }
+
   if (result.status === 'no_face') {
     return (
       <div className="rounded-2xl bg-slate-100 border border-slate-200 px-8 py-6 text-center">

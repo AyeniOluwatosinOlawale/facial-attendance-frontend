@@ -47,8 +47,8 @@ export default function Clock() {
       } else {
         setResult(res)
       }
-    } catch {
-      // network error — keep scanning silently
+    } catch (err) {
+      setResult({ status: 'error', message: err instanceof Error ? err.message : 'API unreachable — check connection' } as ClockResponse)
     }
   }, [])
 
