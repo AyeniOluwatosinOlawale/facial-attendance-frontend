@@ -141,6 +141,8 @@ const TESTIMONIALS = [
   },
 ]
 
+const STRIPE_BUSINESS_LINK = 'https://buy.stripe.com/4gMbIU0dl86h6RB8vha3u00'
+
 const PRICING = [
   {
     name: 'Starter',
@@ -156,13 +158,14 @@ const PRICING = [
     ],
     cta: 'Get started free',
     href: '/register',
+    external: false,
     highlight: false,
   },
   {
     name: 'Business',
-    price: '$49',
+    price: '$15',
     sub: 'per month',
-    desc: 'For growing teams with advanced needs.',
+    desc: 'For growing teams that need more power.',
     features: [
       'Unlimited employees',
       'Automated sign-out email alerts',
@@ -171,8 +174,9 @@ const PRICING = [
       'Priority support',
       'Custom kiosk branding',
     ],
-    cta: 'Start free trial',
-    href: '/register',
+    cta: 'Subscribe now',
+    href: STRIPE_BUSINESS_LINK,
+    external: true,
     highlight: true,
     badge: 'Most popular',
   },
@@ -190,7 +194,8 @@ const PRICING = [
       'Dedicated onboarding',
     ],
     cta: 'Contact sales',
-    href: '/login',
+    href: 'mailto:admin@faceattend.com',
+    external: true,
     highlight: false,
   },
 ]
@@ -549,16 +554,46 @@ export default function Landing() {
                     </li>
                   ))}
                 </ul>
-                <Link
-                  to={plan.href}
-                  className={`w-full text-center font-semibold py-2.5 rounded-xl text-sm transition-all ${
-                    plan.highlight
-                      ? 'bg-indigo-600 hover:bg-indigo-500 text-white hover:shadow-lg hover:shadow-indigo-900/50'
-                      : 'bg-white/8 hover:bg-white/12 text-slate-200 border border-white/10'
-                  }`}
-                >
-                  {plan.cta}
-                </Link>
+
+                {plan.external ? (
+                  <a
+                    href={plan.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`w-full text-center font-semibold py-2.5 rounded-xl text-sm transition-all flex items-center justify-center gap-2 ${
+                      plan.highlight
+                        ? 'bg-indigo-600 hover:bg-indigo-500 text-white hover:shadow-lg hover:shadow-indigo-900/50 active:scale-95'
+                        : 'bg-white/8 hover:bg-white/12 text-slate-200 border border-white/10'
+                    }`}
+                  >
+                    {plan.highlight && (
+                      <svg className="w-3.5 h-3.5 opacity-70" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M20.924 7.625a1.523 1.523 0 00-1.238-1.044l-5.051-.734-2.259-4.577a1.534 1.534 0 00-2.752 0L7.365 5.847l-5.051.734A1.535 1.535 0 001.463 9.2l3.656 3.563-.863 5.031a1.532 1.532 0 002.226 1.616L11 17.033l4.518 2.375a1.534 1.534 0 002.226-1.617l-.863-5.03L20.537 9.2a1.523 1.523 0 00.387-1.575z" />
+                      </svg>
+                    )}
+                    {plan.cta}
+                  </a>
+                ) : (
+                  <Link
+                    to={plan.href}
+                    className={`w-full text-center font-semibold py-2.5 rounded-xl text-sm transition-all ${
+                      plan.highlight
+                        ? 'bg-indigo-600 hover:bg-indigo-500 text-white hover:shadow-lg hover:shadow-indigo-900/50'
+                        : 'bg-white/8 hover:bg-white/12 text-slate-200 border border-white/10'
+                    }`}
+                  >
+                    {plan.cta}
+                  </Link>
+                )}
+
+                {plan.highlight && (
+                  <p className="text-center text-slate-600 text-xs mt-3 flex items-center justify-center gap-1.5">
+                    <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                    </svg>
+                    Secured by Stripe
+                  </p>
+                )}
               </div>
             ))}
           </div>
