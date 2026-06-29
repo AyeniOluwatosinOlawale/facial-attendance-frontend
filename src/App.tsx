@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+// Navigate kept for ProtectedRoute redirect
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from './lib/supabase'
 import Login from './pages/Login'
 import Clock from './pages/Clock'
 import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
+import Landing from './pages/Landing'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null | undefined>(undefined)
@@ -27,7 +29,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Navigate to="/clock" replace />} />
+        <Route path="/" element={<Landing />} />
         <Route path="/clock" element={<Clock />} />
         <Route path="/login" element={<Login />} />
         <Route
