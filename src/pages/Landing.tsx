@@ -167,7 +167,7 @@ const PRICING = [
     sub: 'per month',
     desc: 'For growing teams that need more power.',
     features: [
-      'Unlimited employees',
+      'Up to 50 employees',
       'Automated sign-out email alerts',
       'Live hours tracking',
       'Department filtering',
