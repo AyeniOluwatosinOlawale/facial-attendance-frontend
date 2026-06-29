@@ -9,11 +9,23 @@ const RESULT_PAUSE_MS = 5000
 
 type Mode = 'sign_in' | 'sign_out' | null
 
+function isConnectionMsg(msg: string) {
+  return (
+    msg.includes('ConnectionTerminated') ||
+    msg.includes('Network Error') ||
+    msg.includes('ECONNREFUSED') ||
+    msg.includes('ECONNRESET') ||
+    msg.includes('timeout') ||
+    msg.includes('API unreachable')
+  )
+}
+
 export default function Clock() {
   const webcamRef = useRef<ReactWebcam>(null)
   const [mode, setMode] = useState<Mode>(null)
   const [result, setResult] = useState<ClockResponse | null>(null)
   const [scanning, setScanning] = useState(false)
+  const [reconnecting, setReconnecting] = useState(false)
   const [time, setTime] = useState(new Date())
   const pauseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -46,7 +58,14 @@ export default function Clock() {
       } else if (err instanceof Error) {
         message = err.message
       }
-      setResult({ status: 'error', message } as ClockResponse)
+      if (isConnectionMsg(message)) {
+        setReconnecting(true)
+        setResult(null)
+        setTimeout(() => setReconnecting(false), 4000)
+      } else {
+        setReconnecting(false)
+        setResult({ status: 'error', message } as ClockResponse)
+      }
     }
   }, [])
 
@@ -68,6 +87,7 @@ export default function Clock() {
     setMode(null)
     setResult(null)
     setScanning(false)
+    setReconnecting(false)
   }
 
   const hours = time.getHours()
@@ -216,7 +236,18 @@ export default function Clock() {
 
           {/* Status / result */}
           <div className="w-full max-w-sm">
-            {result ? (
+            {reconnecting ? (
+              <div className="rounded-2xl bg-amber-500/10 backdrop-blur ring-1 ring-amber-400/20 px-8 py-5 text-center animate-fade-in-up">
+                <div className="flex items-center justify-center gap-2 mb-1">
+                  <svg className="w-4 h-4 text-amber-400 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  <p className="text-amber-300 text-sm font-medium">Reconnecting…</p>
+                </div>
+                <p className="text-amber-400/60 text-xs">Server is waking up, please hold still</p>
+              </div>
+            ) : result ? (
               <ClockResult result={result} />
             ) : (
               <div className="rounded-2xl bg-white/5 backdrop-blur ring-1 ring-white/10 px-8 py-5 text-center animate-fade-in-up">
