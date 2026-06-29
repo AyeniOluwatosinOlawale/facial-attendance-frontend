@@ -35,6 +35,9 @@ export default function Landing() {
             <Link to="/clock" className="hidden sm:block text-slate-400 hover:text-white text-sm transition-colors">
               Live demo →
             </Link>
+            <Link to="/dashboard" className="hidden sm:block text-slate-400 hover:text-white text-sm transition-colors">
+              Dashboard
+            </Link>
             <Link
               to="/login"
               className="bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold px-4 py-1.5 rounded-lg transition-all hover:shadow-lg hover:shadow-indigo-900/50"

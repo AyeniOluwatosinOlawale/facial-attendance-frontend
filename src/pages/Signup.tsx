@@ -25,7 +25,13 @@ export default function Signup() {
     }
 
     setLoading(true)
-    const { error } = await supabase.auth.signUp({ email, password })
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: 'https://frontend-two-opal-97.vercel.app/dashboard',
+      },
+    })
     setLoading(false)
 
     if (error) {
@@ -47,17 +53,22 @@ export default function Signup() {
           <h2 className="text-xl font-bold text-slate-800 mb-2">Check your email</h2>
           <p className="text-sm text-slate-500 leading-relaxed mb-6">
             We sent a confirmation link to <span className="font-semibold text-slate-700">{email}</span>.<br />
-            Click it to activate your admin account, then sign in.
+            Click it to activate your account, then go to your dashboard.
           </p>
-          <Link
-            to="/login"
-            className="inline-flex items-center gap-2 bg-sky-700 hover:bg-sky-600 text-white font-semibold px-6 py-2.5 rounded-xl text-sm transition-all hover:shadow-md hover:shadow-sky-200"
-          >
-            Go to sign in
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-            </svg>
-          </Link>
+          <div className="flex flex-col gap-3">
+            <Link
+              to="/dashboard"
+              className="inline-flex items-center justify-center gap-2 bg-sky-700 hover:bg-sky-600 text-white font-semibold px-6 py-2.5 rounded-xl text-sm transition-all hover:shadow-md hover:shadow-sky-200"
+            >
+              Go to Dashboard
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+              </svg>
+            </Link>
+            <Link to="/login" className="text-xs text-slate-400 hover:text-slate-600 text-center transition-colors">
+              Sign in instead →
+            </Link>
+          </div>
         </div>
       </div>
     )
