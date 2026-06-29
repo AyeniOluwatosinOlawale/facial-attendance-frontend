@@ -18,19 +18,14 @@ export default function Register() {
     if (screenshot) setPhoto(screenshot)
   }
 
-  function retake() {
-    setPhoto(null)
-  }
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!photo) {
-      setMessage({ type: 'error', text: 'Please capture a photo first.' })
+      setMessage({ type: 'error', text: 'Please capture a photo before registering.' })
       return
     }
     setLoading(true)
     setMessage(null)
-
     try {
       const blob = await (await fetch(photo)).blob()
       const file = new File([blob], 'photo.jpg', { type: 'image/jpeg' })
@@ -39,121 +34,178 @@ export default function Register() {
       form.append('email', email)
       form.append('department', department)
       form.append('photo', file)
-
       await registerEmployee(form)
-      setMessage({ type: 'success', text: `${name} registered successfully!` })
-      setName('')
-      setEmail('')
-      setDepartment('')
-      setPhoto(null)
+      setMessage({ type: 'success', text: `${name} has been registered successfully.` })
+      setName(''); setEmail(''); setDepartment(''); setPhoto(null)
     } catch (err: unknown) {
-      const msg =
-        err instanceof Error ? err.message : 'Registration failed. Try again.'
-      setMessage({ type: 'error', text: msg })
+      setMessage({ type: 'error', text: err instanceof Error ? err.message : 'Registration failed. Please try again.' })
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-sky-50">
       <Navbar />
       <div className="max-w-2xl mx-auto py-10 px-4">
-        <h1 className="text-2xl font-bold text-slate-800 mb-6">
-          Register Employee
-        </h1>
 
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold text-sky-900">Register Employee</h1>
+          <p className="text-sm text-slate-500 mt-1">Add a new employee to the face recognition system</p>
+        </div>
+
+        {/* Alert */}
         {message && (
-          <div
-            className={`mb-5 rounded-lg px-4 py-3 text-sm border ${
-              message.type === 'success'
-                ? 'bg-green-50 text-green-700 border-green-200'
-                : 'bg-red-50 text-red-700 border-red-200'
-            }`}
-          >
-            {message.text}
+          <div className={`mb-6 flex items-start gap-3 rounded-xl px-4 py-3.5 text-sm border ${
+            message.type === 'success'
+              ? 'bg-green-50 text-green-800 border-green-200'
+              : 'bg-red-50 text-red-800 border-red-200'
+          }`}>
+            <svg className="w-4 h-4 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              {message.type === 'success'
+                ? <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                : <><circle cx="12" cy="12" r="9" /><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01" /></>
+              }
+            </svg>
+            <span>{message.text}</span>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Details */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-4">
-            <h2 className="font-semibold text-slate-700">Employee Details</h2>
-            <div className="grid grid-cols-2 gap-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Details card */}
+          <div className="bg-white rounded-2xl border border-sky-100 p-6 shadow-sm">
+            <div className="flex items-center gap-2 mb-5">
+              <div className="w-6 h-6 rounded-md bg-sky-100 flex items-center justify-center">
+                <svg className="w-3.5 h-3.5 text-sky-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                </svg>
+              </div>
+              <h2 className="font-semibold text-slate-800 text-sm">Employee Details</h2>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 mb-4">
               <div>
-                <label className="block text-sm font-medium text-slate-600 mb-1">
-                  Full Name *
+                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">
+                  Full Name <span className="text-red-500">*</span>
                 </label>
                 <input
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  placeholder="Jane Smith"
+                  className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-600 mb-1">
-                  Email *
+                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">
+                  Email <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  placeholder="jane@company.com"
+                  className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all"
                 />
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-600 mb-1">
+              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">
                 Department
               </label>
               <input
                 value={department}
                 onChange={(e) => setDepartment(e.target.value)}
-                className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                placeholder="e.g. Engineering, Marketing…"
+                className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all"
               />
             </div>
           </div>
 
-          {/* Photo */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-6">
-            <h2 className="font-semibold text-slate-700 mb-4">Face Photo</h2>
+          {/* Photo card */}
+          <div className="bg-white rounded-2xl border border-sky-100 p-6 shadow-sm">
+            <div className="flex items-center gap-2 mb-5">
+              <div className="w-6 h-6 rounded-md bg-sky-100 flex items-center justify-center">
+                <svg className="w-3.5 h-3.5 text-sky-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z" />
+                </svg>
+              </div>
+              <h2 className="font-semibold text-slate-800 text-sm">Face Photo</h2>
+            </div>
+
             {photo ? (
               <div className="flex flex-col items-center gap-4">
-                <img
-                  src={photo}
-                  alt="Captured"
-                  className="w-64 h-48 object-cover rounded-xl border border-slate-200"
-                />
+                <div className="relative">
+                  <img
+                    src={photo}
+                    alt="Captured face"
+                    className="w-64 h-48 object-cover rounded-xl border-2 border-green-200 shadow-sm"
+                  />
+                  <div className="absolute top-2 right-2 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                    <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                    </svg>
+                  </div>
+                </div>
                 <button
                   type="button"
-                  onClick={retake}
-                  className="text-sm text-indigo-600 hover:underline"
+                  onClick={() => setPhoto(null)}
+                  className="text-sm text-sky-600 hover:text-sky-800 font-medium transition-colors cursor-pointer flex items-center gap-1.5"
                 >
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                  </svg>
                   Retake photo
                 </button>
               </div>
             ) : (
               <div className="flex flex-col items-center gap-4">
-                <WebcamCapture ref={webcamRef} className="w-64 h-48" />
+                <div className="rounded-xl overflow-hidden border-2 border-dashed border-sky-200">
+                  <WebcamCapture ref={webcamRef} className="w-64 h-48" />
+                </div>
+                <p className="text-xs text-slate-400 text-center">
+                  Ensure your face is well-lit and centred in the frame
+                </p>
                 <button
                   type="button"
                   onClick={capture}
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-5 py-2 rounded-lg transition-colors"
+                  className="flex items-center gap-2 bg-sky-700 hover:bg-sky-600 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors cursor-pointer"
                 >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <circle cx="12" cy="12" r="3" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
+                  </svg>
                   Capture Photo
                 </button>
               </div>
             )}
           </div>
 
+          {/* Submit */}
           <button
             type="submit"
-            disabled={loading}
-            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl py-3 transition-colors disabled:opacity-50"
+            disabled={loading || !photo}
+            className="w-full bg-green-600 hover:bg-green-500 active:bg-green-700 text-white font-semibold rounded-xl py-3 text-sm transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            {loading ? 'Registering…' : 'Register Employee'}
+            {loading ? (
+              <>
+                <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+                Registering…
+              </>
+            ) : (
+              <>
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z" />
+                </svg>
+                Register Employee
+              </>
+            )}
           </button>
         </form>
       </div>
