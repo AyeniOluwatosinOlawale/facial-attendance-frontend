@@ -8,6 +8,7 @@ import Clock from './pages/Clock'
 import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
 import Landing from './pages/Landing'
+import Features from './pages/Features'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null | undefined>(undefined)
@@ -30,6 +31,7 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Landing />} />
+        <Route path="/features" element={<Features />} />
         <Route path="/clock" element={<Clock />} />
         <Route path="/login" element={<Login />} />
         <Route
