@@ -10,6 +10,8 @@ export default function Signup() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [done, setDone] = useState(false)
+  const [resendLoading, setResendLoading] = useState(false)
+  const [resendMsg, setResendMsg] = useState('')
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -41,34 +43,89 @@ export default function Signup() {
     }
   }
 
+  async function handleResend() {
+    setResendLoading(true)
+    setResendMsg('')
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email,
+      options: {
+        emailRedirectTo: 'https://frontend-two-opal-97.vercel.app/auth/confirm',
+      },
+    })
+    setResendLoading(false)
+    if (error) {
+      setResendMsg(`Error: ${error.message}`)
+    } else {
+      setResendMsg('Confirmation email resent — check your inbox and spam folder.')
+    }
+  }
+
   if (done) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-blue-50 flex items-center justify-center p-4">
         <div className="w-full max-w-sm text-center animate-scale-in">
-          <div className="w-16 h-16 rounded-full bg-emerald-100 border border-emerald-200 flex items-center justify-center mx-auto mb-5">
-            <svg className="w-8 h-8 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+
+          {/* Icon */}
+          <div className="w-16 h-16 rounded-full bg-sky-100 border border-sky-200 flex items-center justify-center mx-auto mb-5">
+            <svg className="w-8 h-8 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
             </svg>
           </div>
+
           <h2 className="text-xl font-bold text-slate-800 mb-2">Check your email</h2>
-          <p className="text-sm text-slate-500 leading-relaxed mb-6">
-            We sent a confirmation link to <span className="font-semibold text-slate-700">{email}</span>.<br />
-            Click it to activate your account, then go to your dashboard.
+          <p className="text-sm text-slate-500 leading-relaxed mb-1">
+            We sent a confirmation link to
           </p>
-          <div className="flex flex-col gap-3">
-            <Link
-              to="/dashboard"
-              className="inline-flex items-center justify-center gap-2 bg-sky-700 hover:bg-sky-600 text-white font-semibold px-6 py-2.5 rounded-xl text-sm transition-all hover:shadow-md hover:shadow-sky-200"
-            >
-              Go to Dashboard
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-              </svg>
-            </Link>
-            <Link to="/login" className="text-xs text-slate-400 hover:text-slate-600 text-center transition-colors">
-              Sign in instead →
-            </Link>
+          <p className="text-sm font-semibold text-slate-700 mb-4">{email}</p>
+
+          {/* Steps */}
+          <div className="bg-white border border-sky-100 rounded-xl p-4 mb-5 text-left space-y-2.5">
+            {[
+              'Open your email inbox',
+              'Look for an email from Supabase Auth',
+              'Check your spam / junk folder if not visible',
+              'Click "Confirm email address"',
+            ].map((step, i) => (
+              <div key={i} className="flex items-start gap-2.5">
+                <span className="w-5 h-5 rounded-full bg-sky-100 text-sky-700 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">{i + 1}</span>
+                <span className="text-xs text-slate-600">{step}</span>
+              </div>
+            ))}
           </div>
+
+          {/* Resend */}
+          {resendMsg ? (
+            <p className={`text-xs mb-4 ${resendMsg.startsWith('Error') ? 'text-red-500' : 'text-emerald-600'}`}>
+              {resendMsg}
+            </p>
+          ) : null}
+          <button
+            onClick={handleResend}
+            disabled={resendLoading}
+            className="w-full border border-sky-200 hover:border-sky-400 text-sky-700 hover:text-sky-900 font-semibold py-2.5 rounded-xl text-sm transition-all mb-3 disabled:opacity-50 flex items-center justify-center gap-2"
+          >
+            {resendLoading ? (
+              <>
+                <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+                Resending…
+              </>
+            ) : (
+              <>
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                </svg>
+                Resend confirmation email
+              </>
+            )}
+          </button>
+
+          <Link to="/login" className="text-xs text-slate-400 hover:text-slate-600 transition-colors">
+            Already confirmed? Sign in →
+          </Link>
         </div>
       </div>
     )
