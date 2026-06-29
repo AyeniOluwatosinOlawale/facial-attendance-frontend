@@ -92,15 +92,18 @@ export default function Clock() {
 
   const TZ = 'Africa/Lagos'
   const fmt = (opts: Intl.DateTimeFormatOptions) =>
-    new Intl.DateTimeFormat('en-NG', { timeZone: TZ, ...opts }).format(time)
+    new Intl.DateTimeFormat('en', { timeZone: TZ, ...opts }).format(time)
 
-  const h12 = fmt({ hour: '2-digit', hour12: true }).split(':')[0]
-  const mins = fmt({ minute: '2-digit' }).padStart(2, '0')
-  const secs = String(time.getSeconds()).padStart(2, '0')
-  const ampm = fmt({ hour: 'numeric', hour12: true }).match(/AM|PM/)?.[0] ?? ''
-  const dateStr = fmt({ weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
-  const hours = parseInt(new Intl.DateTimeFormat('en-NG', { timeZone: TZ, hour: 'numeric', hour12: false }).format(time))
+  const weekday = fmt({ weekday: 'short' })
+  const month   = fmt({ month: 'short' })
+  const day     = fmt({ day: '2-digit' })
+  const hh      = fmt({ hour: '2-digit', hour12: false }).padStart(2, '0')
+  const mm      = fmt({ minute: '2-digit' }).padStart(2, '0')
+  const ss      = String(time.getSeconds()).padStart(2, '0')
+  const year    = fmt({ year: 'numeric' })
+  const clockStr = `${weekday} ${month} ${day} ${hh}:${mm}:${ss} WAT ${year}`
 
+  const hours = parseInt(hh)
   const greeting = hours < 12 ? 'Good morning' : hours < 17 ? 'Good afternoon' : 'Good evening'
 
   return (
@@ -127,16 +130,9 @@ export default function Clock() {
         </div>
 
         {/* Live clock */}
-        <div className="flex items-end gap-1.5">
-          <span className="text-5xl font-bold font-mono text-white tabular-nums tracking-tight leading-none">
-            {h12}:{mins}
-          </span>
-          <div className="flex flex-col items-start mb-1 gap-0.5">
-            <span className="text-indigo-300 font-mono text-sm font-semibold leading-none">{ampm}</span>
-            <span className="text-slate-500 font-mono text-xs leading-none">{secs}s</span>
-          </div>
-        </div>
-        <p className="text-slate-400 text-sm">{dateStr}</p>
+        <p className="font-mono text-white text-xl font-semibold tabular-nums tracking-tight">
+          {clockStr}
+        </p>
       </div>
 
       {/* ── Mode selection ── */}
