@@ -150,7 +150,7 @@ const PRICING = [
     sub: 'forever',
     desc: 'Perfect for small teams getting started.',
     features: [
-      'Up to 10 employees',
+      'Up to 3 employees',
       'Unlimited attendance records',
       'Face recognition kiosk',
       'Basic dashboard',
