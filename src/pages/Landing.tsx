@@ -194,7 +194,7 @@ const PRICING = [
       'Dedicated onboarding',
     ],
     cta: 'Contact sales',
-    href: 'mailto:admin@faceattend.com',
+    href: 'mailto:ayenioluwatosinolawale@gmail.com?subject=FaceAttend%20Enterprise%20Enquiry&body=Hi%2C%20I%20am%20interested%20in%20the%20FaceAttend%20Enterprise%20plan.%20Please%20get%20in%20touch.',
     external: true,
     highlight: false,
   },
