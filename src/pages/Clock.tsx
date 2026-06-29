@@ -90,12 +90,16 @@ export default function Clock() {
     setReconnecting(false)
   }
 
-  const hours = time.getHours()
-  const mins = String(time.getMinutes()).padStart(2, '0')
+  const TZ = 'Africa/Lagos'
+  const fmt = (opts: Intl.DateTimeFormatOptions) =>
+    new Intl.DateTimeFormat('en-NG', { timeZone: TZ, ...opts }).format(time)
+
+  const h12 = fmt({ hour: '2-digit', hour12: true }).split(':')[0]
+  const mins = fmt({ minute: '2-digit' }).padStart(2, '0')
   const secs = String(time.getSeconds()).padStart(2, '0')
-  const ampm = hours >= 12 ? 'PM' : 'AM'
-  const h12 = String(hours % 12 || 12).padStart(2, '0')
-  const dateStr = time.toLocaleDateString([], { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+  const ampm = fmt({ hour: 'numeric', hour12: true }).match(/AM|PM/)?.[0] ?? ''
+  const dateStr = fmt({ weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+  const hours = parseInt(new Intl.DateTimeFormat('en-NG', { timeZone: TZ, hour: 'numeric', hour12: false }).format(time))
 
   const greeting = hours < 12 ? 'Good morning' : hours < 17 ? 'Good afternoon' : 'Good evening'
 
