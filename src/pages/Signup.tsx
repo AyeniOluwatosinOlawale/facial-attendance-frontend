@@ -2,22 +2,66 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 
-export default function Login() {
+export default function Signup() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [confirm, setConfirm] = useState('')
   const [showPw, setShowPw] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [done, setDone] = useState(false)
   const navigate = useNavigate()
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError('')
+
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters.')
+      return
+    }
+    if (password !== confirm) {
+      setError('Passwords do not match.')
+      return
+    }
+
     setLoading(true)
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    const { error } = await supabase.auth.signUp({ email, password })
     setLoading(false)
-    if (error) setError(error.message)
-    else navigate('/dashboard')
+
+    if (error) {
+      setError(error.message)
+    } else {
+      setDone(true)
+    }
+  }
+
+  if (done) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-blue-50 flex items-center justify-center p-4">
+        <div className="w-full max-w-sm text-center animate-scale-in">
+          <div className="w-16 h-16 rounded-full bg-emerald-100 border border-emerald-200 flex items-center justify-center mx-auto mb-5">
+            <svg className="w-8 h-8 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-bold text-slate-800 mb-2">Check your email</h2>
+          <p className="text-sm text-slate-500 leading-relaxed mb-6">
+            We sent a confirmation link to <span className="font-semibold text-slate-700">{email}</span>.<br />
+            Click it to activate your admin account, then sign in.
+          </p>
+          <Link
+            to="/login"
+            className="inline-flex items-center gap-2 bg-sky-700 hover:bg-sky-600 text-white font-semibold px-6 py-2.5 rounded-xl text-sm transition-all hover:shadow-md hover:shadow-sky-200"
+          >
+            Go to sign in
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+            </svg>
+          </Link>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -38,9 +82,9 @@ export default function Login() {
 
         {/* Card */}
         <div className="bg-white rounded-2xl shadow-sm border border-sky-100 p-7 animate-fade-in-up [animation-delay:80ms]">
-          <h2 className="text-lg font-bold text-slate-800 mb-1">Welcome back</h2>
+          <h2 className="text-lg font-bold text-slate-800 mb-1">Create your account</h2>
           <p className="text-sm text-slate-500 mb-6 leading-relaxed">
-            Sign in to view attendance records,<br />register employees, and export reports.
+            Set up your admin account to manage employees and attendance records.
           </p>
 
           {error && (
@@ -54,7 +98,7 @@ export default function Login() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="animate-fade-in-up [animation-delay:120ms]">
+            <div className="animate-fade-in-up [animation-delay:100ms]">
               <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">
                 Email address
               </label>
@@ -69,7 +113,7 @@ export default function Login() {
               />
             </div>
 
-            <div className="animate-fade-in-up [animation-delay:180ms]">
+            <div className="animate-fade-in-up [animation-delay:160ms]">
               <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">
                 Password
               </label>
@@ -77,10 +121,10 @@ export default function Login() {
                 <input
                   type={showPw ? 'text' : 'password'}
                   required
-                  autoComplete="current-password"
+                  autoComplete="new-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
+                  placeholder="Min. 8 characters"
                   className="w-full border border-slate-200 rounded-lg px-3 py-2.5 pr-10 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all"
                 />
                 <button
@@ -103,10 +147,30 @@ export default function Login() {
               </div>
             </div>
 
+            <div className="animate-fade-in-up [animation-delay:220ms]">
+              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">
+                Confirm password
+              </label>
+              <input
+                type={showPw ? 'text' : 'password'}
+                required
+                autoComplete="new-password"
+                value={confirm}
+                onChange={(e) => setConfirm(e.target.value)}
+                placeholder="Re-enter your password"
+                className={`w-full border rounded-lg px-3 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all ${
+                  confirm && confirm !== password ? 'border-red-300 bg-red-50' : 'border-slate-200'
+                }`}
+              />
+              {confirm && confirm !== password && (
+                <p className="text-xs text-red-500 mt-1">Passwords don't match</p>
+              )}
+            </div>
+
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-sky-700 hover:bg-sky-600 active:bg-sky-800 text-white font-semibold rounded-xl py-2.5 text-sm transition-all duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-2 animate-fade-in-up [animation-delay:240ms] hover:shadow-md hover:shadow-sky-200 active:scale-[0.98]"
+              className="w-full bg-sky-700 hover:bg-sky-600 active:bg-sky-800 text-white font-semibold rounded-xl py-2.5 text-sm transition-all duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-2 animate-fade-in-up [animation-delay:280ms] hover:shadow-md hover:shadow-sky-200 active:scale-[0.98]"
             >
               {loading ? (
                 <>
@@ -114,11 +178,11 @@ export default function Login() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                   </svg>
-                  Signing in…
+                  Creating account…
                 </>
               ) : (
                 <>
-                  Sign in
+                  Create admin account
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                   </svg>
@@ -128,15 +192,11 @@ export default function Login() {
           </form>
         </div>
 
-        <p className="text-center text-xs text-slate-400 mt-5 animate-fade-in-up [animation-delay:320ms]">
-          Don't have an account?{' '}
-          <Link to="/signup" className="text-sky-600 hover:text-sky-800 hover:underline transition-colors">
-            Set up admin account →
+        <p className="text-center text-xs text-slate-400 mt-5 animate-fade-in-up [animation-delay:360ms]">
+          Already have an account?{' '}
+          <Link to="/login" className="text-sky-600 hover:text-sky-800 hover:underline transition-colors">
+            Sign in →
           </Link>
-        </p>
-        <p className="text-center text-xs text-slate-400 mt-2 animate-fade-in-up [animation-delay:360ms]">
-          Employees clock in via face recognition at the{' '}
-          <Link to="/clock" className="text-sky-600 hover:text-sky-800 hover:underline transition-colors">kiosk →</Link>
         </p>
       </div>
     </div>
