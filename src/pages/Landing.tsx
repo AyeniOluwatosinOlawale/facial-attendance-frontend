@@ -194,7 +194,7 @@ const PRICING = [
       'Dedicated onboarding',
     ],
     cta: 'Contact sales',
-    href: 'mailto:ayenioluwatosinolawale@gmail.com?subject=FaceAttend%20Enterprise%20Enquiry&body=Hi%2C%20I%20am%20interested%20in%20the%20FaceAttend%20Enterprise%20plan.%20Please%20get%20in%20touch.',
+    href: 'https://mail.google.com/mail/?view=cm&to=ayenioluwatosinolawale@gmail.com&su=FaceAttend%20Enterprise%20Enquiry&body=Hi%2C%20I%20am%20interested%20in%20the%20FaceAttend%20Enterprise%20plan.%20Please%20get%20in%20touch.',
     external: true,
     highlight: false,
   },
@@ -558,8 +558,8 @@ export default function Landing() {
                 {plan.external ? (
                   <a
                     href={plan.href}
-                    target={plan.href.startsWith('mailto:') ? '_self' : '_blank'}
-                    rel={plan.href.startsWith('mailto:') ? undefined : 'noopener noreferrer'}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className={`w-full text-center font-semibold py-2.5 rounded-xl text-sm transition-all flex items-center justify-center gap-2 ${
                       plan.highlight
                         ? 'bg-indigo-600 hover:bg-indigo-500 text-white hover:shadow-lg hover:shadow-indigo-900/50 active:scale-95'
