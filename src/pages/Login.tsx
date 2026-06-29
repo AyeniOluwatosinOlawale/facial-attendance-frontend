@@ -23,26 +23,29 @@ export default function Login() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-blue-50 flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
-        {/* Logo */}
-        <div className="flex flex-col items-center mb-8">
-          <div className="w-12 h-12 rounded-2xl bg-sky-700 flex items-center justify-center shadow-lg shadow-sky-200 mb-3">
-            <svg className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+
+        {/* Logo mark */}
+        <div className="flex flex-col items-center mb-8 animate-fade-in-up">
+          <div className="w-14 h-14 rounded-2xl bg-sky-700 flex items-center justify-center shadow-lg shadow-sky-200 mb-4 animate-float">
+            <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
               <circle cx="12" cy="12" r="9" />
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 7v5l3 3" />
             </svg>
           </div>
-          <h1 className="text-xl font-bold text-sky-900">FaceAttend</h1>
-          <p className="text-sm text-slate-500 mt-0.5">Admin Portal</p>
+          <h1 className="text-xl font-bold text-sky-900 tracking-tight">FaceAttend</h1>
+          <p className="text-sm text-slate-400 mt-0.5">Admin Portal</p>
         </div>
 
         {/* Card */}
-        <div className="bg-white rounded-2xl shadow-sm border border-sky-100 p-7">
-          <h2 className="text-lg font-semibold text-slate-800 mb-1">Sign in</h2>
-          <p className="text-sm text-slate-500 mb-6">Access the attendance dashboard</p>
+        <div className="bg-white rounded-2xl shadow-sm border border-sky-100 p-7 animate-fade-in-up [animation-delay:80ms]">
+          <h2 className="text-lg font-bold text-slate-800 mb-1">Welcome back</h2>
+          <p className="text-sm text-slate-500 mb-6 leading-relaxed">
+            Sign in to view attendance records,<br />register employees, and export reports.
+          </p>
 
           {error && (
-            <div className="mb-4 flex items-start gap-2 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2.5">
-              <svg className="w-4 h-4 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <div className="mb-5 flex items-start gap-2.5 text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl px-4 py-3 animate-scale-in">
+              <svg className="w-4 h-4 mt-0.5 shrink-0 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <circle cx="12" cy="12" r="9" />
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01" />
               </svg>
@@ -51,9 +54,9 @@ export default function Login() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wide mb-1.5">
-                Email
+            <div className="animate-fade-in-up [animation-delay:120ms]">
+              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">
+                Email address
               </label>
               <input
                 type="email"
@@ -66,8 +69,8 @@ export default function Login() {
               />
             </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-600 uppercase tracking-wide mb-1.5">
+            <div className="animate-fade-in-up [animation-delay:180ms]">
+              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">
                 Password
               </label>
               <div className="relative">
@@ -84,6 +87,7 @@ export default function Login() {
                   type="button"
                   onClick={() => setShowPw(!showPw)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer transition-colors"
+                  aria-label={showPw ? 'Hide password' : 'Show password'}
                 >
                   {showPw ? (
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -102,7 +106,7 @@ export default function Login() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-sky-700 hover:bg-sky-600 active:bg-sky-800 text-white font-semibold rounded-lg py-2.5 text-sm transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-2"
+              className="w-full bg-sky-700 hover:bg-sky-600 active:bg-sky-800 text-white font-semibold rounded-xl py-2.5 text-sm transition-all duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-2 animate-fade-in-up [animation-delay:240ms] hover:shadow-md hover:shadow-sky-200 active:scale-[0.98]"
             >
               {loading ? (
                 <>
@@ -112,14 +116,21 @@ export default function Login() {
                   </svg>
                   Signing in…
                 </>
-              ) : 'Sign in'}
+              ) : (
+                <>
+                  Sign in
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                  </svg>
+                </>
+              )}
             </button>
           </form>
         </div>
 
-        <p className="text-center text-xs text-slate-400 mt-5">
-          Employees authenticate via face recognition at the{' '}
-          <a href="/clock" className="text-sky-600 hover:underline">kiosk</a>
+        <p className="text-center text-xs text-slate-400 mt-5 animate-fade-in-up [animation-delay:320ms]">
+          Employees clock in via face recognition at the{' '}
+          <a href="/clock" className="text-sky-600 hover:text-sky-800 hover:underline transition-colors">kiosk →</a>
         </p>
       </div>
     </div>

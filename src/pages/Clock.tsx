@@ -9,15 +9,6 @@ const RESULT_PAUSE_MS = 5000
 
 type Mode = 'sign_in' | 'sign_out' | null
 
-function Clock24Icon() {
-  return (
-    <svg className="w-10 h-10 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-      <circle cx="12" cy="12" r="9" />
-      <path strokeLinecap="round" strokeLinejoin="round" d="M12 7v5l3 3" />
-    </svg>
-  )
-}
-
 export default function Clock() {
   const webcamRef = useRef<ReactWebcam>(null)
   const [mode, setMode] = useState<Mode>(null)
@@ -79,111 +70,171 @@ export default function Clock() {
     setScanning(false)
   }
 
-  const clockStr = time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+  const hours = time.getHours()
+  const mins = String(time.getMinutes()).padStart(2, '0')
+  const secs = String(time.getSeconds()).padStart(2, '0')
+  const ampm = hours >= 12 ? 'PM' : 'AM'
+  const h12 = String(hours % 12 || 12).padStart(2, '0')
   const dateStr = time.toLocaleDateString([], { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+
+  const greeting = hours < 12 ? 'Good morning' : hours < 17 ? 'Good afternoon' : 'Good evening'
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 flex flex-col items-center justify-center gap-8 p-6 relative overflow-hidden">
 
-      {/* Background decoration */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-[-80px] left-[-80px] w-96 h-96 bg-indigo-700/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-[-80px] right-[-80px] w-96 h-96 bg-purple-700/10 rounded-full blur-3xl" />
+      {/* Background orbs */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-[-120px] left-[-80px] w-[500px] h-[500px] bg-indigo-700/8 rounded-full blur-3xl animate-spin-slow" />
+        <div className="absolute bottom-[-100px] right-[-100px] w-[400px] h-[400px] bg-purple-700/8 rounded-full blur-3xl animate-spin-slow [animation-direction:reverse]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-sky-900/5 rounded-full blur-3xl" />
       </div>
 
       {/* Header */}
-      <div className="relative text-center flex flex-col items-center gap-2">
-        <div className="flex items-center gap-3 mb-1">
-          <Clock24Icon />
-          <h1 className="text-4xl font-extrabold text-white tracking-tight">FaceAttend</h1>
+      <div className="relative text-center flex flex-col items-center gap-2 animate-fade-in-up">
+        {/* Logo */}
+        <div className="flex items-center gap-3 mb-3">
+          <div className="w-9 h-9 rounded-xl bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center">
+            <svg className="w-5 h-5 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+              <circle cx="12" cy="12" r="9" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 7v5l3 3" />
+            </svg>
+          </div>
+          <span className="text-white font-bold text-lg tracking-tight">FaceAttend</span>
         </div>
-        <p className="text-2xl font-mono font-bold text-indigo-300">{clockStr}</p>
+
+        {/* Live clock */}
+        <div className="flex items-end gap-1.5">
+          <span className="text-5xl font-bold font-mono text-white tabular-nums tracking-tight leading-none">
+            {h12}:{mins}
+          </span>
+          <div className="flex flex-col items-start mb-1 gap-0.5">
+            <span className="text-indigo-300 font-mono text-sm font-semibold leading-none">{ampm}</span>
+            <span className="text-slate-500 font-mono text-xs leading-none">{secs}s</span>
+          </div>
+        </div>
         <p className="text-slate-400 text-sm">{dateStr}</p>
       </div>
 
-      {/* Mode selection */}
+      {/* ── Mode selection ── */}
       {mode === null && (
-        <div className="relative flex flex-col items-center gap-6 w-full max-w-sm">
-          <p className="text-slate-300 text-base font-medium tracking-wide uppercase text-xs">
-            Choose an option to continue
-          </p>
-          <div className="flex flex-col gap-4 w-full">
+        <div className="relative flex flex-col items-center gap-5 w-full max-w-xs animate-fade-in-up [animation-delay:100ms]">
+          <div className="text-center">
+            <p className="text-white font-semibold text-lg">{greeting}!</p>
+            <p className="text-slate-400 text-sm mt-0.5">Tap below to record your attendance</p>
+          </div>
+
+          <div className="flex flex-col gap-3 w-full stagger">
             <button
               onClick={() => startMode('sign_in')}
-              className="group w-full relative overflow-hidden bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-500 hover:to-emerald-400 text-white text-xl font-bold py-7 rounded-2xl transition-all duration-200 shadow-xl shadow-green-900/40 active:scale-95"
+              className="animate-fade-in-up group w-full relative overflow-hidden bg-gradient-to-br from-green-600 to-emerald-500 hover:from-green-500 hover:to-emerald-400 text-white font-bold py-6 rounded-2xl transition-all duration-200 shadow-xl shadow-green-900/30 active:scale-95 hover:shadow-2xl hover:shadow-green-900/40"
             >
-              <span className="relative flex items-center justify-center gap-3">
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <span className="relative flex items-center justify-center gap-3 text-lg">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6A2.25 2.25 0 005.25 5.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M18 12H9m0 0l3-3m-3 3l3 3" />
                 </svg>
                 Sign In
               </span>
-              <div className="absolute inset-0 bg-white/5 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500 skew-x-12" />
+              <p className="text-green-200/70 text-xs font-normal mt-0.5">Start your work session</p>
+              {/* Shine sweep */}
+              <div className="absolute inset-0 bg-white/6 translate-x-[-110%] group-hover:translate-x-[110%] transition-transform duration-500 skew-x-12 pointer-events-none" />
             </button>
 
             <button
               onClick={() => startMode('sign_out')}
-              className="group w-full relative overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-500 hover:from-blue-500 hover:to-indigo-400 text-white text-xl font-bold py-7 rounded-2xl transition-all duration-200 shadow-xl shadow-blue-900/40 active:scale-95"
+              className="animate-fade-in-up group w-full relative overflow-hidden bg-gradient-to-br from-blue-600 to-indigo-500 hover:from-blue-500 hover:to-indigo-400 text-white font-bold py-6 rounded-2xl transition-all duration-200 shadow-xl shadow-blue-900/30 active:scale-95 hover:shadow-2xl hover:shadow-blue-900/40"
             >
-              <span className="relative flex items-center justify-center gap-3">
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <span className="relative flex items-center justify-center gap-3 text-lg">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0110.5 3h6A2.25 2.25 0 0118.75 5.25v13.5A2.25 2.25 0 0116.5 21h-6a2.25 2.25 0 01-2.25-2.25V15m-3 0l-3-3m0 0l3-3m-3 3H15" />
                 </svg>
                 Sign Out
               </span>
-              <div className="absolute inset-0 bg-white/5 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500 skew-x-12" />
+              <p className="text-blue-200/70 text-xs font-normal mt-0.5">End your work session</p>
+              <div className="absolute inset-0 bg-white/6 translate-x-[-110%] group-hover:translate-x-[110%] transition-transform duration-500 skew-x-12 pointer-events-none" />
             </button>
           </div>
 
-          <a href="/login" className="text-slate-600 text-xs hover:text-slate-400 transition-colors mt-2">
-            Admin login →
+          <a
+            href="/login"
+            className="text-slate-600 text-xs hover:text-slate-400 transition-colors flex items-center gap-1 mt-1 animate-fade-in-up [animation-delay:320ms]"
+          >
+            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6A2.25 2.25 0 005.25 5.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15" />
+            </svg>
+            Admin login
           </a>
         </div>
       )}
 
-      {/* Camera view */}
+      {/* ── Camera view ── */}
       {mode !== null && (
         <>
-          <div className="relative flex flex-col items-center gap-1">
-            <span className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-semibold mb-2 ${
+          {/* Mode pill */}
+          <div className="animate-slide-down">
+            <span className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-semibold ring-1 ${
               mode === 'sign_in'
-                ? 'bg-green-500/20 text-green-300 ring-1 ring-green-500/40'
-                : 'bg-blue-500/20 text-blue-300 ring-1 ring-blue-500/40'
+                ? 'bg-green-500/15 text-green-300 ring-green-500/30'
+                : 'bg-blue-500/15 text-blue-300 ring-blue-500/30'
             }`}>
               <span className={`w-2 h-2 rounded-full animate-pulse ${mode === 'sign_in' ? 'bg-green-400' : 'bg-blue-400'}`} />
-              {mode === 'sign_in' ? 'Sign In Mode' : 'Sign Out Mode'}
+              {mode === 'sign_in' ? 'Signing in — hold still' : 'Signing out — hold still'}
             </span>
           </div>
 
-          <div className="relative rounded-3xl overflow-hidden ring-2 ring-indigo-500/30 shadow-2xl shadow-indigo-900/40">
-            <WebcamCapture ref={webcamRef} className="w-[480px] h-[360px]" />
+          {/* Webcam */}
+          <div className="relative rounded-3xl overflow-hidden ring-1 ring-white/10 shadow-2xl shadow-black/50 animate-scale-in">
+            <WebcamCapture ref={webcamRef} className="w-[460px] h-[345px]" />
+
+            {/* Scan overlay */}
             {scanning && (
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="w-52 h-52 border-4 border-indigo-400/70 border-dashed rounded-full animate-spin" />
-                <div className="absolute w-40 h-40 border-2 border-indigo-300/30 rounded-full" />
+                {/* Outer spinning ring */}
+                <div className={`absolute w-48 h-48 rounded-full border-2 border-dashed opacity-50 animate-spin [animation-duration:3s] ${
+                  mode === 'sign_in' ? 'border-green-400' : 'border-blue-400'
+                }`} />
+                {/* Inner pulsing ring */}
+                <div className={`absolute w-32 h-32 rounded-full border-2 animate-scan ${
+                  mode === 'sign_in' ? 'border-green-300/60' : 'border-blue-300/60'
+                }`} />
+                {/* Corner guides */}
+                <div className="absolute inset-8 pointer-events-none">
+                  <div className={`absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 rounded-tl-lg ${mode === 'sign_in' ? 'border-green-400' : 'border-blue-400'}`} />
+                  <div className={`absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 rounded-tr-lg ${mode === 'sign_in' ? 'border-green-400' : 'border-blue-400'}`} />
+                  <div className={`absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 rounded-bl-lg ${mode === 'sign_in' ? 'border-green-400' : 'border-blue-400'}`} />
+                  <div className={`absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 rounded-br-lg ${mode === 'sign_in' ? 'border-green-400' : 'border-blue-400'}`} />
+                </div>
               </div>
             )}
-            <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/60 to-transparent py-3 px-4">
-              <p className="text-white/70 text-xs text-center">Position your face in the frame</p>
+
+            {/* Bottom hint */}
+            <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/70 to-transparent py-3 px-4">
+              <p className="text-white/60 text-xs text-center font-medium tracking-wide">
+                Centre your face · Look straight ahead
+              </p>
             </div>
           </div>
 
-          <div className="w-full max-w-md">
+          {/* Status / result */}
+          <div className="w-full max-w-sm">
             {result ? (
               <ClockResult result={result} />
             ) : (
-              <div className="rounded-2xl bg-white/5 backdrop-blur border border-white/10 px-8 py-5 text-center">
-                <p className="text-slate-300 text-base">Scanning for your face…</p>
-                <p className="text-slate-500 text-sm mt-1">Stay still and look directly at the camera</p>
+              <div className="rounded-2xl bg-white/5 backdrop-blur ring-1 ring-white/10 px-8 py-5 text-center animate-fade-in-up">
+                <div className="flex items-center justify-center gap-2 mb-1">
+                  <span className="w-2 h-2 rounded-full bg-indigo-400 animate-pulse" />
+                  <p className="text-slate-200 text-sm font-medium">Recognizing your face…</p>
+                </div>
+                <p className="text-slate-500 text-xs">This usually takes 1–2 seconds</p>
               </div>
             )}
           </div>
 
+          {/* Back button */}
           <button
             onClick={cancel}
-            className="flex items-center gap-1.5 text-slate-500 text-sm hover:text-slate-300 transition-colors"
+            className="flex items-center gap-1.5 text-slate-600 text-sm hover:text-slate-300 transition-colors group animate-fade-in-up [animation-delay:200ms]"
           >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <svg className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
             </svg>
             Back to menu

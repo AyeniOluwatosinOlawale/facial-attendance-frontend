@@ -57,11 +57,12 @@ function StatCard({
   accent: 'sky' | 'green' | 'amber' | 'slate'
 }) {
   const bg = { sky: 'bg-sky-50', green: 'bg-green-50', amber: 'bg-amber-50', slate: 'bg-slate-50' }[accent]
+  // each card picks up stagger delay from parent .stagger class
   const iconBg = { sky: 'bg-sky-100 text-sky-700', green: 'bg-green-100 text-green-700', amber: 'bg-amber-100 text-amber-700', slate: 'bg-slate-100 text-slate-600' }[accent]
   const val = { sky: 'text-sky-900', green: 'text-green-800', amber: 'text-amber-800', slate: 'text-slate-800' }[accent]
 
   return (
-    <div className={`${bg} rounded-2xl border border-sky-100 p-5 flex items-center gap-4`}>
+    <div className={`${bg} rounded-2xl border border-sky-100 p-5 flex items-center gap-4 animate-fade-in-up`}>
       <div className={`w-10 h-10 rounded-xl ${iconBg} flex items-center justify-center shrink-0`}>
         {icon}
       </div>
@@ -146,7 +147,7 @@ export default function Dashboard() {
       <div className="max-w-7xl mx-auto py-10 px-4 space-y-8">
 
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between animate-fade-in-up">
           <div>
             <h1 className="text-2xl font-bold text-sky-900">Attendance Dashboard</h1>
             <p className="text-sm text-slate-500 mt-1">
@@ -165,7 +166,7 @@ export default function Dashboard() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 stagger">
           <StatCard
             label="Employees"
             value={String(totalPresent)}
@@ -213,7 +214,7 @@ export default function Dashboard() {
         </div>
 
         {/* Filters */}
-        <div className="bg-white rounded-2xl border border-sky-100 p-5 shadow-sm">
+        <div className="bg-white rounded-2xl border border-sky-100 p-5 shadow-sm animate-fade-in-up [animation-delay:280ms]">
           <div className="flex items-center gap-2 mb-4">
             <div className="w-6 h-6 rounded-md bg-sky-100 flex items-center justify-center">
               <svg className="w-3.5 h-3.5 text-sky-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -294,12 +295,20 @@ export default function Dashboard() {
             </div>
           </div>
           {loading ? (
-            <div className="flex items-center justify-center py-16 text-slate-400">
-              <svg className="w-5 h-5 animate-spin mr-2" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-              </svg>
-              Loading records…
+            <div className="p-5 space-y-3">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="flex items-center gap-4" style={{ animationDelay: `${i * 60}ms` }}>
+                  <div className="skeleton w-8 h-8 rounded-full shrink-0" />
+                  <div className="flex-1 space-y-1.5">
+                    <div className="skeleton h-3 w-32 rounded" />
+                    <div className="skeleton h-2.5 w-20 rounded" />
+                  </div>
+                  <div className="skeleton h-3 w-16 rounded" />
+                  <div className="skeleton h-3 w-16 rounded" />
+                  <div className="skeleton h-3 w-12 rounded" />
+                  <div className="skeleton h-5 w-16 rounded-full" />
+                </div>
+              ))}
             </div>
           ) : (
             <AttendanceTable rows={filtered} />
