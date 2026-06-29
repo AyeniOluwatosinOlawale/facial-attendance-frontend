@@ -3,6 +3,7 @@ import ReactWebcam from 'react-webcam'
 import Navbar from '../components/Navbar'
 import WebcamCapture from '../components/WebcamCapture'
 import { registerEmployee } from '../lib/api'
+import { supabase } from '../lib/supabase'
 
 export default function Register() {
   const webcamRef = useRef<ReactWebcam>(null)
@@ -27,6 +28,8 @@ export default function Register() {
     setLoading(true)
     setMessage(null)
     try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const adminId = session?.user?.id
       const blob = await (await fetch(photo)).blob()
       const file = new File([blob], 'photo.jpg', { type: 'image/jpeg' })
       const form = new FormData()
@@ -34,7 +37,7 @@ export default function Register() {
       form.append('email', email)
       form.append('department', department)
       form.append('photo', file)
-      await registerEmployee(form)
+      await registerEmployee(form, adminId)
       setMessage({ type: 'success', text: `${name} has been registered successfully.` })
       setName(''); setEmail(''); setDepartment(''); setPhoto(null)
     } catch (err: unknown) {

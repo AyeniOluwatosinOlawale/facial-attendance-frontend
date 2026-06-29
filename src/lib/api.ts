@@ -4,7 +4,8 @@ const BASE = import.meta.env.VITE_API_URL as string
 
 export const api = axios.create({ baseURL: BASE })
 
-export async function registerEmployee(form: FormData) {
+export async function registerEmployee(form: FormData, adminId?: string) {
+  if (adminId) form.append('admin_id', adminId)
   const { data } = await api.post('/register', form, {
     headers: { 'Content-Type': 'multipart/form-data' },
   })

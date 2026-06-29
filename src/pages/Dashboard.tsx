@@ -85,9 +85,29 @@ export default function Dashboard() {
   useEffect(() => {
     async function load() {
       setLoading(true)
+
+      // Get current admin's user ID so we only show their employees
+      const { data: { session } } = await supabase.auth.getSession()
+      const adminId = session?.user?.id
+
+      // Get employee IDs belonging to this admin
+      const { data: myEmployees } = await supabase
+        .from('employees')
+        .select('id')
+        .eq('admin_id', adminId ?? '')
+
+      const empIds = (myEmployees ?? []).map((e: { id: string }) => e.id)
+
+      if (empIds.length === 0) {
+        setRows([])
+        setLoading(false)
+        return
+      }
+
       const { data } = await supabase
         .from('attendance')
         .select('id, date, check_in, check_out, hours_worked, alert_sent, status, employees(name, department, email)')
+        .in('employee_id', empIds)
         .gte('date', dateFrom)
         .lte('date', dateTo)
         .order('date', { ascending: false })
