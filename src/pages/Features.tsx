@@ -587,7 +587,7 @@ export default function Features() {
             <Link to="/dashboard" className="hover:text-slate-400 transition-colors">Dashboard</Link>
             <Link to="/login" className="hover:text-slate-400 transition-colors">Admin</Link>
           </div>
-          <p className="text-slate-800 text-xs">Built with InsightFace · FastAPI · Supabase · React</p>
+          <p className="text-slate-800 text-xs">© 2025 FaceAttend</p>
         </div>
       </footer>
     </div>
