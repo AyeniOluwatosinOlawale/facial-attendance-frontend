@@ -558,7 +558,7 @@ export default function Landing() {
                 {plan.external ? (
                   <a
                     href={plan.href}
-                    target="_blank"
+                    target={plan.href.startsWith('mailto:') ? '_self' : '_blank'}
                     rel="noopener noreferrer"
                     className={`w-full text-center font-semibold py-2.5 rounded-xl text-sm transition-all flex items-center justify-center gap-2 ${
                       plan.highlight
