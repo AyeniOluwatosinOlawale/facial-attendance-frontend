@@ -82,7 +82,12 @@ export default function Dashboard() {
     const map = new Map<string, number>()
     for (const r of filtered) {
       const prev = map.get(r.employees.name) ?? 0
-      map.set(r.employees.name, prev + (r.hours_worked ?? 0))
+      let hours = r.hours_worked ?? 0
+      // for in-progress sessions (signed in, not yet out) count elapsed time
+      if (r.hours_worked == null && r.check_in && !r.check_out) {
+        hours = (Date.now() - new Date(r.check_in).getTime()) / 3600000
+      }
+      map.set(r.employees.name, prev + hours)
     }
     return Array.from(map.entries())
       .map(([name, total_hours]) => ({ name, total_hours }))
