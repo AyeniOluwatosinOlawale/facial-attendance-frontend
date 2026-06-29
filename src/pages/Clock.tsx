@@ -47,8 +47,15 @@ export default function Clock() {
       } else {
         setResult(res)
       }
-    } catch (err) {
-      setResult({ status: 'error', message: err instanceof Error ? err.message : 'API unreachable — check connection' } as ClockResponse)
+    } catch (err: unknown) {
+      let message = 'API unreachable'
+      if (err && typeof err === 'object' && 'response' in err) {
+        const axErr = err as { response?: { data?: { detail?: string }; status?: number } }
+        message = axErr.response?.data?.detail ?? `HTTP ${axErr.response?.status}`
+      } else if (err instanceof Error) {
+        message = err.message
+      }
+      setResult({ status: 'error', message } as ClockResponse)
     }
   }, [])
 
