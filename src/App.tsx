@@ -10,6 +10,7 @@ import Dashboard from './pages/Dashboard'
 import Landing from './pages/Landing'
 import Features from './pages/Features'
 import Signup from './pages/Signup'
+import AuthConfirm from './pages/AuthConfirm'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null | undefined>(undefined)
@@ -36,6 +37,7 @@ export default function App() {
         <Route path="/clock" element={<Clock />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/auth/confirm" element={<AuthConfirm />} />
         <Route
           path="/register"
           element={

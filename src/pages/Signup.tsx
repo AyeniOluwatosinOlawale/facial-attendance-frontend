@@ -29,7 +29,7 @@ export default function Signup() {
       email,
       password,
       options: {
-        emailRedirectTo: 'https://frontend-two-opal-97.vercel.app/dashboard',
+        emailRedirectTo: 'https://frontend-two-opal-97.vercel.app/auth/confirm',
       },
     })
     setLoading(false)
