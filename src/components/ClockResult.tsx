@@ -50,7 +50,7 @@ export default function ClockResult({ result }: { result: ClockResponse }) {
           </svg>
         }
         title="Connection error"
-        subtitle={result.message ?? 'Could not reach the recognition server'}
+        subtitle={result.message ?? result.detail?.slice(0, 200) ?? 'Could not reach the recognition server'}
         note="Retrying automatically — please stay in frame"
       />
     )

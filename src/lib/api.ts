@@ -57,4 +57,7 @@ export interface ClockResponse {
   time?: string
   hours_worked?: number
   message?: string
+  detail?: string
+  _debug_emp_count?: number
+  _debug_best_dist?: number
 }
