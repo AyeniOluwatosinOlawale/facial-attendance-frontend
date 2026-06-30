@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import ReactWebcam from 'react-webcam'
 import WebcamCapture from '../components/WebcamCapture'
 import ClockResult from '../components/ClockResult'
@@ -29,6 +29,12 @@ export default function Clock() {
   const [time, setTime] = useState(new Date())
   const pauseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+  // Read admin ID from URL: /clock?admin=<uuid>
+  const adminId = useMemo(
+    () => new URLSearchParams(window.location.search).get('admin'),
+    [],
+  )
+
   useEffect(() => {
     const t = setInterval(() => setTime(new Date()), 1000)
     return () => clearInterval(t)
@@ -38,7 +44,7 @@ export default function Clock() {
     const screenshot = webcamRef.current?.getScreenshot()
     if (!screenshot) return
     try {
-      const res = await clockFace(screenshot)
+      const res = await clockFace(screenshot, adminId)
       if (res.status === 'matched') {
         setResult(res)
         setScanning(false)
@@ -67,7 +73,7 @@ export default function Clock() {
         setResult({ status: 'error', message } as ClockResponse)
       }
     }
-  }, [])
+  }, [adminId])
 
   useEffect(() => {
     if (!scanning) return
@@ -105,6 +111,34 @@ export default function Clock() {
 
   const hours = parseInt(hh)
   const greeting = hours < 12 ? 'Good morning' : hours < 17 ? 'Good afternoon' : 'Good evening'
+
+  // ── No admin configured ────────────────────────────────────────────────────
+  if (!adminId) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 flex flex-col items-center justify-center gap-6 p-6">
+        <div className="w-16 h-16 rounded-2xl bg-amber-500/15 border border-amber-400/30 flex items-center justify-center">
+          <svg className="w-8 h-8 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.95 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+          </svg>
+        </div>
+        <div className="text-center max-w-sm">
+          <h2 className="text-white font-bold text-xl mb-2">Kiosk not configured</h2>
+          <p className="text-slate-400 text-sm leading-relaxed">
+            This kiosk is missing an admin link. Ask your administrator to share the correct kiosk URL from their dashboard.
+          </p>
+        </div>
+        <a
+          href="/login"
+          className="text-indigo-400 text-sm hover:text-indigo-300 transition-colors flex items-center gap-1.5"
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6A2.25 2.25 0 005.25 5.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15" />
+          </svg>
+          Admin login
+        </a>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 flex flex-col items-center justify-center gap-8 p-6 relative overflow-hidden">
@@ -155,7 +189,6 @@ export default function Clock() {
                 Sign In
               </span>
               <p className="text-green-200/70 text-xs font-normal mt-0.5">Start your work session</p>
-              {/* Shine sweep */}
               <div className="absolute inset-0 bg-white/6 translate-x-[-110%] group-hover:translate-x-[110%] transition-transform duration-500 skew-x-12 pointer-events-none" />
             </button>
 
@@ -208,15 +241,12 @@ export default function Clock() {
             {/* Scan overlay */}
             {scanning && (
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                {/* Outer spinning ring */}
                 <div className={`absolute w-48 h-48 rounded-full border-2 border-dashed opacity-50 animate-spin [animation-duration:3s] ${
                   mode === 'sign_in' ? 'border-green-400' : 'border-blue-400'
                 }`} />
-                {/* Inner pulsing ring */}
                 <div className={`absolute w-32 h-32 rounded-full border-2 animate-scan ${
                   mode === 'sign_in' ? 'border-green-300/60' : 'border-blue-300/60'
                 }`} />
-                {/* Corner guides */}
                 <div className="absolute inset-8 pointer-events-none">
                   <div className={`absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 rounded-tl-lg ${mode === 'sign_in' ? 'border-green-400' : 'border-blue-400'}`} />
                   <div className={`absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 rounded-tr-lg ${mode === 'sign_in' ? 'border-green-400' : 'border-blue-400'}`} />

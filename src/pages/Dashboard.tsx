@@ -81,20 +81,39 @@ export default function Dashboard() {
   const [nameFilter, setNameFilter] = useState('')
   const [dateFrom, setDateFrom] = useState(format(subDays(new Date(), 6), 'yyyy-MM-dd'))
   const [dateTo, setDateTo] = useState(format(new Date(), 'yyyy-MM-dd'))
+  const [adminId, setAdminId] = useState<string | null>(null)
+  const [kioskCopied, setKioskCopied] = useState(false)
+
+  const kioskUrl = adminId
+    ? `${window.location.origin}/clock?admin=${adminId}`
+    : null
+
+  function copyKioskLink() {
+    if (!kioskUrl) return
+    navigator.clipboard.writeText(kioskUrl)
+    setKioskCopied(true)
+    setTimeout(() => setKioskCopied(false), 2500)
+  }
 
   useEffect(() => {
     async function load() {
       setLoading(true)
 
-      // Get current admin's user ID so we only show their employees
       const { data: { session } } = await supabase.auth.getSession()
-      const adminId = session?.user?.id
+      const uid = session?.user?.id ?? null
+      setAdminId(uid)
 
-      // Get employee IDs belonging to this admin (or with no admin set — legacy records)
+      if (!uid) {
+        setRows([])
+        setLoading(false)
+        return
+      }
+
+      // Only fetch employees belonging to this admin
       const { data: myEmployees } = await supabase
         .from('employees')
         .select('id')
-        .or(`admin_id.eq.${adminId},admin_id.is.null`)
+        .eq('admin_id', uid)
 
       const empIds = (myEmployees ?? []).map((e: { id: string }) => e.id)
 
@@ -167,22 +186,52 @@ export default function Dashboard() {
       <div className="max-w-7xl mx-auto py-10 px-4 space-y-8">
 
         {/* Header */}
-        <div className="flex items-center justify-between animate-fade-in-up">
+        <div className="flex items-start justify-between gap-4 animate-fade-in-up flex-wrap">
           <div>
             <h1 className="text-2xl font-bold text-sky-900">Attendance Dashboard</h1>
             <p className="text-sm text-slate-500 mt-1">
               {format(new Date(dateFrom), 'MMM d')} – {format(new Date(dateTo), 'MMM d, yyyy')}
             </p>
           </div>
-          <button
-            onClick={downloadCSV}
-            className="flex items-center gap-2 bg-sky-700 hover:bg-sky-600 text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors cursor-pointer"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
-            </svg>
-            Export CSV
-          </button>
+          <div className="flex items-center gap-3 flex-wrap">
+            {/* Kiosk link — share with employees */}
+            {kioskUrl && (
+              <button
+                onClick={copyKioskLink}
+                title={kioskUrl}
+                className={`flex items-center gap-2 text-sm font-semibold px-4 py-2.5 rounded-xl transition-all cursor-pointer border ${
+                  kioskCopied
+                    ? 'bg-green-50 text-green-700 border-green-200'
+                    : 'bg-white text-slate-700 border-slate-200 hover:border-sky-300 hover:text-sky-700'
+                }`}
+              >
+                {kioskCopied ? (
+                  <>
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                    </svg>
+                    Link copied!
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
+                    </svg>
+                    Copy Kiosk Link
+                  </>
+                )}
+              </button>
+            )}
+            <button
+              onClick={downloadCSV}
+              className="flex items-center gap-2 bg-sky-700 hover:bg-sky-600 text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors cursor-pointer"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+              </svg>
+              Export CSV
+            </button>
+          </div>
         </div>
 
         {/* Stats */}

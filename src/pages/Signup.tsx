@@ -13,6 +13,8 @@ export default function Signup() {
   const [resendLoading, setResendLoading] = useState(false)
   const [resendMsg, setResendMsg] = useState('')
 
+  const confirmRedirect = 'https://faceattend.co.uk/auth/confirm'
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError('')
@@ -30,9 +32,7 @@ export default function Signup() {
     const { error } = await supabase.auth.signUp({
       email,
       password,
-      options: {
-        emailRedirectTo: 'https://faceattend.co.uk/auth/confirm',
-      },
+      options: { emailRedirectTo: confirmRedirect },
     })
     setLoading(false)
 
@@ -49,9 +49,7 @@ export default function Signup() {
     const { error } = await supabase.auth.resend({
       type: 'signup',
       email,
-      options: {
-        emailRedirectTo: 'https://faceattend.co.uk/auth/confirm',
-      },
+      options: { emailRedirectTo: 'https://faceattend.co.uk/auth/confirm' },
     })
     setResendLoading(false)
     if (error) {
@@ -66,7 +64,6 @@ export default function Signup() {
       <div className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-blue-50 flex items-center justify-center p-4">
         <div className="w-full max-w-sm text-center animate-scale-in">
 
-          {/* Icon */}
           <div className="w-16 h-16 rounded-full bg-sky-100 border border-sky-200 flex items-center justify-center mx-auto mb-5">
             <svg className="w-8 h-8 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
@@ -74,16 +71,13 @@ export default function Signup() {
           </div>
 
           <h2 className="text-xl font-bold text-slate-800 mb-2">Check your email</h2>
-          <p className="text-sm text-slate-500 leading-relaxed mb-1">
-            We sent a confirmation link to
-          </p>
+          <p className="text-sm text-slate-500 leading-relaxed mb-1">We sent a confirmation link to</p>
           <p className="text-sm font-semibold text-slate-700 mb-4">{email}</p>
 
-          {/* Steps */}
           <div className="bg-white border border-sky-100 rounded-xl p-4 mb-5 text-left space-y-2.5">
             {[
               'Open your email inbox',
-              'Look for an email from Supabase Auth',
+              'Look for an email from noreply@faceattend.co.uk',
               'Check your spam / junk folder if not visible',
               'Click "Confirm email address"',
             ].map((step, i) => (
@@ -94,12 +88,12 @@ export default function Signup() {
             ))}
           </div>
 
-          {/* Resend */}
-          {resendMsg ? (
+          {resendMsg && (
             <p className={`text-xs mb-4 ${resendMsg.startsWith('Error') ? 'text-red-500' : 'text-emerald-600'}`}>
               {resendMsg}
             </p>
-          ) : null}
+          )}
+
           <button
             onClick={handleResend}
             disabled={resendLoading}
@@ -135,7 +129,6 @@ export default function Signup() {
     <div className="min-h-screen bg-gradient-to-br from-sky-50 via-white to-blue-50 flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
 
-        {/* Logo mark */}
         <div className="flex flex-col items-center mb-8 animate-fade-in-up">
           <div className="w-14 h-14 rounded-2xl bg-sky-700 flex items-center justify-center shadow-lg shadow-sky-200 mb-4 animate-float">
             <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
@@ -147,7 +140,6 @@ export default function Signup() {
           <p className="text-sm text-slate-400 mt-0.5">Admin Portal</p>
         </div>
 
-        {/* Card */}
         <div className="bg-white rounded-2xl shadow-sm border border-sky-100 p-7 animate-fade-in-up [animation-delay:80ms]">
           <h2 className="text-lg font-bold text-slate-800 mb-1">Create your account</h2>
           <p className="text-sm text-slate-500 mb-6 leading-relaxed">

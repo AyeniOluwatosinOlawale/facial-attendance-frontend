@@ -15,7 +15,7 @@ export async function registerEmployee(form: FormData, adminId?: string) {
 function isConnectionError(err: unknown): boolean {
   if (!err || typeof err !== 'object') return false
   const e = err as { code?: string; message?: string; response?: unknown }
-  if (e.response) return false // got a response — not a connection drop
+  if (e.response) return false
   return (
     e.code === 'ECONNABORTED' ||
     e.code === 'ERR_NETWORK' ||
@@ -29,21 +29,29 @@ function isConnectionError(err: unknown): boolean {
   )
 }
 
-export async function clockFace(imageBase64: string, retries = 2): Promise<ClockResponse> {
+export async function clockFace(
+  imageBase64: string,
+  adminId: string | null,
+  retries = 2,
+): Promise<ClockResponse> {
   try {
-    const { data } = await api.post('/clock', { image: imageBase64 }, { timeout: 15000 })
+    const { data } = await api.post(
+      '/clock',
+      { image: imageBase64, admin_id: adminId },
+      { timeout: 15000 },
+    )
     return data as ClockResponse
   } catch (err) {
     if (retries > 0 && isConnectionError(err)) {
       await new Promise(r => setTimeout(r, 1500))
-      return clockFace(imageBase64, retries - 1)
+      return clockFace(imageBase64, adminId, retries - 1)
     }
     throw err
   }
 }
 
 export interface ClockResponse {
-  status: 'no_face' | 'unknown' | 'matched' | 'error'
+  status: 'no_face' | 'not_registered' | 'no_admin' | 'matched' | 'error'
   action?: 'signed_in' | 'signed_out' | 'already_complete'
   name?: string
   time?: string
