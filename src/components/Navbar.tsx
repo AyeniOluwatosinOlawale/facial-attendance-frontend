@@ -6,7 +6,6 @@ export default function Navbar() {
   const navigate = useNavigate()
 
   const links = [
-    { to: '/clock', label: 'Kiosk' },
     { to: '/register', label: 'Register' },
     { to: '/dashboard', label: 'Dashboard' },
   ]
