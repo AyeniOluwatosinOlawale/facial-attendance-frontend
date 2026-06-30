@@ -31,7 +31,7 @@ export default function Signup() {
       email,
       password,
       options: {
-        emailRedirectTo: 'https://frontend-two-opal-97.vercel.app/auth/confirm',
+        emailRedirectTo: 'https://faceattend.co.uk/auth/confirm',
       },
     })
     setLoading(false)
@@ -50,7 +50,7 @@ export default function Signup() {
       type: 'signup',
       email,
       options: {
-        emailRedirectTo: 'https://frontend-two-opal-97.vercel.app/auth/confirm',
+        emailRedirectTo: 'https://faceattend.co.uk/auth/confirm',
       },
     })
     setResendLoading(false)
