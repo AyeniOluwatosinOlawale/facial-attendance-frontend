@@ -90,11 +90,11 @@ export default function Dashboard() {
       const { data: { session } } = await supabase.auth.getSession()
       const adminId = session?.user?.id
 
-      // Get employee IDs belonging to this admin
+      // Get employee IDs belonging to this admin (or with no admin set — legacy records)
       const { data: myEmployees } = await supabase
         .from('employees')
         .select('id')
-        .eq('admin_id', adminId ?? '')
+        .or(`admin_id.eq.${adminId},admin_id.is.null`)
 
       const empIds = (myEmployees ?? []).map((e: { id: string }) => e.id)
 
