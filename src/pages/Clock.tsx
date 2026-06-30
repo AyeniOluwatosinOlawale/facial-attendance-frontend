@@ -6,8 +6,10 @@ import { clockFace, type ClockResponse } from '../lib/api'
 
 const POLL_INTERVAL_MS = 2000
 const RESULT_PAUSE_MS = 5000
+const API_BASE = import.meta.env.VITE_API_URL as string
 
 type Mode = 'sign_in' | 'sign_out' | null
+type ServerState = 'checking' | 'ready' | 'unreachable'
 
 function isConnectionMsg(msg: string) {
   return (
@@ -27,7 +29,10 @@ export default function Clock() {
   const [scanning, setScanning] = useState(false)
   const [reconnecting, setReconnecting] = useState(false)
   const [time, setTime] = useState(new Date())
+  const [serverState, setServerState] = useState<ServerState>('checking')
+  const [warmupSeconds, setWarmupSeconds] = useState(0)
   const pauseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const warmupTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   // Optional admin scoping via ?admin=<uuid>
   const adminId = useMemo(
@@ -35,9 +40,63 @@ export default function Clock() {
     [],
   )
 
+  // Live clock
   useEffect(() => {
     const t = setInterval(() => setTime(new Date()), 1000)
     return () => clearInterval(t)
+  }, [])
+
+  // Wake up the server on mount — show warm-up UI if it takes >2s
+  useEffect(() => {
+    let cancelled = false
+    let warmupStarted = false
+
+    async function pingServer() {
+      const start = Date.now()
+
+      for (let attempt = 0; attempt < 12; attempt++) {
+        if (cancelled) return
+        try {
+          const controller = new AbortController()
+          const timer = setTimeout(() => controller.abort(), 7000)
+          const res = await fetch(`${API_BASE}/health`, { signal: controller.signal })
+          clearTimeout(timer)
+          if (res.ok) {
+            if (!cancelled) {
+              setServerState('ready')
+              if (warmupTimerRef.current) clearInterval(warmupTimerRef.current)
+            }
+            return
+          }
+        } catch {
+          // server not yet up
+        }
+
+        // After 2 seconds of waiting, show warm-up UI
+        if (!warmupStarted && Date.now() - start > 2000) {
+          warmupStarted = true
+          if (!cancelled) {
+            warmupTimerRef.current = setInterval(() => {
+              setWarmupSeconds(s => s + 1)
+            }, 1000)
+          }
+        }
+
+        await new Promise(r => setTimeout(r, 5000))
+      }
+
+      // 12 attempts × 5s = ~60s — give up
+      if (!cancelled) {
+        setServerState('unreachable')
+        if (warmupTimerRef.current) clearInterval(warmupTimerRef.current)
+      }
+    }
+
+    pingServer()
+    return () => {
+      cancelled = true
+      if (warmupTimerRef.current) clearInterval(warmupTimerRef.current)
+    }
   }, [])
 
   const capture = useCallback(async () => {
@@ -112,6 +171,68 @@ export default function Clock() {
   const hours = parseInt(hh)
   const greeting = hours < 12 ? 'Good morning' : hours < 17 ? 'Good afternoon' : 'Good evening'
 
+  // ── Server warm-up screen ──────────────────────────────────────────────────
+  if (serverState === 'checking') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 flex flex-col items-center justify-center gap-6 p-6">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="w-9 h-9 rounded-xl bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center">
+            <svg className="w-5 h-5 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+              <circle cx="12" cy="12" r="9" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 7v5l3 3" />
+            </svg>
+          </div>
+          <span className="text-white font-bold text-lg tracking-tight">FaceAttend</span>
+        </div>
+
+        {warmupSeconds === 0 ? (
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <svg className="w-5 h-5 text-indigo-400 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+              <p className="text-slate-300 text-sm font-medium">Connecting to server…</p>
+            </div>
+          </div>
+        ) : (
+          <div className="rounded-2xl bg-amber-500/10 ring-1 ring-amber-400/20 px-8 py-6 text-center max-w-xs w-full">
+            <div className="flex items-center justify-center gap-2 mb-3">
+              <svg className="w-5 h-5 text-amber-400 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+              <p className="text-amber-300 font-semibold">Server starting up…</p>
+            </div>
+            <p className="text-amber-400/70 text-sm leading-relaxed">
+              The recognition server was idle and is waking up.
+              <br />This takes about 30–60 seconds.
+            </p>
+            <p className="text-amber-500/50 text-xs mt-3 font-mono">{warmupSeconds}s elapsed — please wait</p>
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  if (serverState === 'unreachable') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 flex flex-col items-center justify-center gap-6 p-6">
+        <div className="rounded-2xl bg-red-500/10 ring-1 ring-red-400/20 px-8 py-6 text-center max-w-xs w-full">
+          <p className="text-red-300 font-semibold mb-2">Server unreachable</p>
+          <p className="text-red-400/70 text-sm">Could not connect after 60 seconds. Please contact your admin.</p>
+          <button
+            onClick={() => { setServerState('checking'); setWarmupSeconds(0) }}
+            className="mt-4 px-4 py-2 rounded-lg bg-red-500/20 text-red-300 text-sm hover:bg-red-500/30 transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  // ── Normal clock UI (server is ready) ─────────────────────────────────────
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 flex flex-col items-center justify-center gap-8 p-6 relative overflow-hidden">
 
@@ -124,7 +245,6 @@ export default function Clock() {
 
       {/* Header */}
       <div className="relative text-center flex flex-col items-center gap-2 animate-fade-in-up">
-        {/* Logo */}
         <div className="flex items-center gap-3 mb-3">
           <div className="w-9 h-9 rounded-xl bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center">
             <svg className="w-5 h-5 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
@@ -134,8 +254,6 @@ export default function Clock() {
           </div>
           <span className="text-white font-bold text-lg tracking-tight">FaceAttend</span>
         </div>
-
-        {/* Live clock */}
         <p className="font-mono text-white text-xl font-semibold tabular-nums tracking-tight">
           {clockStr}
         </p>
