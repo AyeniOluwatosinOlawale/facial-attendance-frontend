@@ -103,7 +103,7 @@ export default function Clock() {
     const screenshot = webcamRef.current?.getScreenshot()
     if (!screenshot) return
     try {
-      const res = await clockFace(screenshot, adminId)
+      const res = await clockFace(screenshot, adminId, mode)
       if (res.status === 'matched') {
         setResult(res)
         setScanning(false)

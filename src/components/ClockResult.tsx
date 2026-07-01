@@ -151,6 +151,49 @@ export default function ClockResult({ result }: { result: ClockResponse }) {
     )
   }
 
+  if (result.action === 'already_signed_in') {
+    return (
+      <ResultCard color="yellow"
+        icon={
+          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.95 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+          </svg>
+        }
+        title={`${result.name}, you're already signed in`}
+        subtitle={
+          <>
+            Signed in at{' '}
+            <span className="font-bold text-yellow-300 font-mono">
+              {result.time ? format(new Date(result.time), 'hh:mm a') : '—'}
+            </span>
+            . Use the <span className="font-semibold">Sign Out</span> button when you're done.
+          </>
+        }
+        note="You can only sign in once per day"
+      />
+    )
+  }
+
+  if (result.action === 'not_signed_in') {
+    return (
+      <ResultCard color="red"
+        icon={
+          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.95 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+          </svg>
+        }
+        title={`${result.name}, you haven't signed in yet`}
+        subtitle={
+          <>
+            No sign-in recorded for today. Use the{' '}
+            <span className="font-semibold">Sign In</span> button first.
+          </>
+        }
+        note="You must sign in before you can sign out"
+      />
+    )
+  }
+
   if (result.action === 'already_complete') {
     return (
       <ResultCard color="slate"

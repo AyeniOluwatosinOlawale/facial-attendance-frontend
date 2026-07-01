@@ -32,19 +32,20 @@ function isConnectionError(err: unknown): boolean {
 export async function clockFace(
   imageBase64: string,
   adminId: string | null,
+  mode: 'sign_in' | 'sign_out' | null = null,
   retries = 2,
 ): Promise<ClockResponse> {
   try {
     const { data } = await api.post(
       '/clock',
-      { image: imageBase64, admin_id: adminId },
+      { image: imageBase64, admin_id: adminId, mode },
       { timeout: 15000 },
     )
     return data as ClockResponse
   } catch (err) {
     if (retries > 0 && isConnectionError(err)) {
       await new Promise(r => setTimeout(r, 1500))
-      return clockFace(imageBase64, adminId, retries - 1)
+      return clockFace(imageBase64, adminId, mode, retries - 1)
     }
     throw err
   }
@@ -52,7 +53,7 @@ export async function clockFace(
 
 export interface ClockResponse {
   status: 'no_face' | 'not_registered' | 'no_admin' | 'matched' | 'error'
-  action?: 'signed_in' | 'signed_out' | 'already_complete'
+  action?: 'signed_in' | 'signed_out' | 'already_complete' | 'already_signed_in' | 'not_signed_in'
   name?: string
   time?: string
   hours_worked?: number
